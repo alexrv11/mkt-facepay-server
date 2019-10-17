@@ -3,9 +3,11 @@ package com.hackaton.facepayapi.service;
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
 
 import java.nio.ByteBuffer;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,12 +16,11 @@ public class AddFacesToCollection {
     // replace bucket, collectionId, and photo with your values.
     public static final String collectionId = "FacePayCollection";
 
-    public String uploadFace(byte[] bytes) throws Exception {
+    public String uploadFace(String imageBase64) throws Exception {
 
-        AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
-        //AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        Image image = new Image().withBytes(buffer);
+        AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();
+
+        Image image = new Image().withBytes(getBytesFromImage(imageBase64));
 
         IndexFacesRequest indexFacesRequest = new IndexFacesRequest()
                 .withImage(image)
@@ -34,7 +35,9 @@ public class AddFacesToCollection {
         List<FaceRecord> faceRecords = indexFacesResult.getFaceRecords();
         for (FaceRecord faceRecord : faceRecords) {
             System.out.println("  Face ID: " + faceRecord.getFace().getFaceId());
-            System.out.println("  Location:" + faceRecord.getFaceDetail().getBoundingBox().toString());
+            ObjectMapper map = new ObjectMapper();
+            System.out.println(map.writeValueAsString(faceRecord.getFaceDetail()));
+
         }
 
         List<UnindexedFace> unindexedFaces = indexFacesResult.getUnindexedFaces();
@@ -49,14 +52,13 @@ public class AddFacesToCollection {
         return faceRecords.get(0).getFace().getFaceId();
     }
 
-    public Optional<String> validateFace(byte[] bytes) {
+    public Optional<String> validateFace(String imageBase64) {
 
         Optional<String> res = Optional.empty();
 
-        AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
-        //AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
-        ByteBuffer buffer = ByteBuffer.wrap(bytes);
-        Image image = new Image().withBytes(buffer);
+        AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();
+
+        Image image = new Image().withBytes(getBytesFromImage(imageBase64));
 
         SearchFacesByImageRequest searchFacesByImageRequest = new SearchFacesByImageRequest()
                 .withImage(image)
@@ -77,6 +79,11 @@ public class AddFacesToCollection {
             res = Optional.of(faceImageMatches.get(0).getFace().getFaceId());
         }
         return res;
+    }
+
+    private ByteBuffer getBytesFromImage(String imageBase64){
+        String image = imageBase64;
+        return ByteBuffer.wrap(Base64.getDecoder().decode(image));
     }
 
 }
