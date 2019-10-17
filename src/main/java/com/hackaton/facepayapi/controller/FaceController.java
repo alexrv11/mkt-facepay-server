@@ -56,7 +56,7 @@ public class FaceController {
 
     }
 
-    @PostMapping("/createcollection")
+    
     public String createCollection(){
         AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
 
