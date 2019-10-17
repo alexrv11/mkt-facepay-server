@@ -13,3 +13,5 @@ target/classes/
 target/
 
 *.class
+
+*.lst
