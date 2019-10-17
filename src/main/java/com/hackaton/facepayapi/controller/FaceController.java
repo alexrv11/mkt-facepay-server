@@ -25,21 +25,13 @@ public class FaceController {
     @Autowired
     private AddFacesToCollection addFacesToCollection;
 
-    @PostMapping("/facetest")
-    public String facetest(@RequestBody FaceLogin login) {
-        String image = login.getFace();
-        byte[] decodedBytes = Base64.getDecoder().decode(image);
-        writeByte(decodedBytes);
 
-        return "pong";
-    }
-
+    // Only used to add a new face to the collection
     @PostMapping("/facelogin")
     public String faceLogin(@RequestBody FaceLogin login) {
-        String image = login.getFace();
-        byte[] decodedBytes = Base64.getDecoder().decode(image);
+
         try {
-            return addFacesToCollection.uploadFace(decodedBytes);
+            return addFacesToCollection.uploadFace(login.getFace());
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -49,11 +41,11 @@ public class FaceController {
         return "no cargue nada";
     }
 
+    //Deprecated
     @GetMapping("/facelogin")
     public ResponseEntity<String> validateLogin(@RequestBody FaceLogin login) {
-        String image = login.getFace();
-        byte[] decodedBytes = Base64.getDecoder().decode(image);
-        Optional<String> faceID = addFacesToCollection.validateFace(decodedBytes);
+
+        Optional<String> faceID = addFacesToCollection.validateFace(login.getFace());
         if (!faceID.isPresent()) {
             return ResponseEntity.notFound().build();
         }
@@ -61,7 +53,7 @@ public class FaceController {
 
     }
 
-
+    // Internal method to create a new collection.
     public String createCollection(){
         AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
 
@@ -81,32 +73,6 @@ public class FaceController {
                 createCollectionResult.getStatusCode().toString());
         return "ok";
 
-    }
-
-    static void writeByte(byte[] bytes)
-    {
-        try {
-
-            // Initialize a pointer
-            // in file using OutputStream
-            String FILEPATH = "demo.jpeg";
-            File file = new File(FILEPATH);
-            OutputStream
-                    os
-                    = new FileOutputStream(file);
-
-            // Starts writing the bytes in it
-            os.write(bytes);
-            System.out.println("Successfully"
-                    + " byte inserted");
-
-            // Close the file
-            os.close();
-        }
-
-        catch (Exception e) {
-            System.out.println("Exception: " + e);
-        }
     }
 
 }
