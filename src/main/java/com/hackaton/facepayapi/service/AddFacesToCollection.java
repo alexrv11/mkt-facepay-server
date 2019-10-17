@@ -7,13 +7,14 @@ import org.springframework.stereotype.Service;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Optional;
+
 @Service
 public class AddFacesToCollection {
     // replace bucket, collectionId, and photo with your values.
     public static final String collectionId = "FacePayCollection";
-    public static final String photo = "input.jpg";
 
-    public String loadImage(byte[] bytes) throws Exception {
+    public String uploadFace(byte[] bytes) throws Exception {
 
         AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
         //AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
@@ -25,12 +26,10 @@ public class AddFacesToCollection {
                 .withQualityFilter(QualityFilter.AUTO)
                 .withMaxFaces(1)
                 .withCollectionId(collectionId)
-                //.withExternalImageId(photo)
                 .withDetectionAttributes("DEFAULT");
 
         IndexFacesResult indexFacesResult = rekognitionClient.indexFaces(indexFacesRequest);
 
-        System.out.println("Results for " + photo);
         System.out.println("Faces indexed:");
         List<FaceRecord> faceRecords = indexFacesResult.getFaceRecords();
         for (FaceRecord faceRecord : faceRecords) {
@@ -50,7 +49,9 @@ public class AddFacesToCollection {
         return faceRecords.get(0).getFace().getFaceId();
     }
 
-    public String validateIfImageIsInCollection(byte[] bytes) {
+    public Optional<String> validateFace(byte[] bytes) {
+
+        Optional<String> res = Optional.empty();
 
         AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
         //AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.defaultClient();
@@ -65,7 +66,6 @@ public class AddFacesToCollection {
 
         SearchFacesByImageResult searchFacesByImageResult =
                 rekognitionClient.searchFacesByImage(searchFacesByImageRequest);
-        System.out.println("Faces matching largest face in image from" + photo);
         List < FaceMatch > faceImageMatches = searchFacesByImageResult.getFaceMatches();
         for (FaceMatch face: faceImageMatches) {
             System.out.println(face.getFace().getFaceId());
@@ -73,8 +73,10 @@ public class AddFacesToCollection {
             System.out.println(face.getFace().getConfidence());
             System.out.println(face.getSimilarity());
         }
-
-        return faceImageMatches.get(0).getFace().getFaceId();
+        if (faceImageMatches.size() > 0) {
+            res = Optional.of(faceImageMatches.get(0).getFace().getFaceId());
+        }
+        return res;
     }
 
 }

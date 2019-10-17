@@ -1,6 +1,5 @@
 package com.hackaton.facepayapi.controller;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.CreateCollectionRequest;
@@ -8,6 +7,7 @@ import com.amazonaws.services.rekognition.model.CreateCollectionResult;
 import com.hackaton.facepayapi.models.FaceLogin;
 import com.hackaton.facepayapi.service.AddFacesToCollection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.Base64;
+import java.util.Optional;
 
 @RestController
 public class FaceController {
@@ -38,7 +39,7 @@ public class FaceController {
         String image = login.getFace();
         byte[] decodedBytes = Base64.getDecoder().decode(image);
         try {
-            return addFacesToCollection.loadImage(decodedBytes);
+            return addFacesToCollection.uploadFace(decodedBytes);
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -49,14 +50,18 @@ public class FaceController {
     }
 
     @GetMapping("/facelogin")
-    public String validateLogin(@RequestBody FaceLogin login) {
+    public ResponseEntity<String> validateLogin(@RequestBody FaceLogin login) {
         String image = login.getFace();
         byte[] decodedBytes = Base64.getDecoder().decode(image);
-        return addFacesToCollection.validateIfImageIsInCollection(decodedBytes);
+        Optional<String> faceID = addFacesToCollection.validateFace(decodedBytes);
+        if (!faceID.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.accepted().body(faceID.get());
 
     }
 
-    
+
     public String createCollection(){
         AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();//.defaultClient();
 
