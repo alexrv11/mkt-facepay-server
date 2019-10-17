@@ -10,5 +10,6 @@
 *.iml
 
 target/classes/
+target/
 
 *.class
