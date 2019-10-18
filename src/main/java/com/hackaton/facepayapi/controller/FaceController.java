@@ -6,6 +6,7 @@ import com.hackaton.facepayapi.service.AWSFaceRecognition;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,6 +22,7 @@ public class FaceController {
     @PostMapping("/payer/face")
     public String registerFace(@RequestBody FaceLogin login) {
         try {
+
             String faceId = AWSFaceRecognition.uploadFace(login.getFace());
             String applicationId = "2330173696820881";
             String redirectUrl = "https%3A%2F%2Fthawing-wildwood-80127.herokuapp.com/payer/" + faceId + "/register";
@@ -51,7 +53,6 @@ public class FaceController {
     //Deprecated
     @PostMapping("/facelogin/validate")
     public ResponseEntity<FaceValidationResult> validateLogin(@RequestBody FaceLogin login) {
-
         Optional<String> faceID = AWSFaceRecognition.validateFace(login.getFace());
         if (!faceID.isPresent()) {
             return ResponseEntity.notFound().build();
@@ -69,4 +70,5 @@ public class FaceController {
         return ResponseEntity.accepted().body(res.get());
 
     }
+
 }

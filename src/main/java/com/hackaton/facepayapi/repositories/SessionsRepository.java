@@ -10,6 +10,6 @@ import java.util.Optional;
 @Repository
 public interface SessionsRepository extends JpaRepository<SessionsEntity, String> {
 
-    Optional<SessionsEntity> findBySessionIdAndLogged(long sessionId, Boolean logged);
+    Optional<SessionsEntity> findFirstBySessionIdAndLoggedOrderByDtLoggedInDesc(long sessionId, Boolean logged);
 }
 
