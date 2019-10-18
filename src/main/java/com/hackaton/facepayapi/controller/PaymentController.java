@@ -3,6 +3,7 @@ package com.hackaton.facepayapi.controller;
 import com.hackaton.facepayapi.daos.SessionsEntity;
 import com.hackaton.facepayapi.daos.UsersEntity;
 import com.hackaton.facepayapi.models.PaymentFrontRequest;
+import com.hackaton.facepayapi.models.PaymentResponse;
 import com.hackaton.facepayapi.repositories.SessionsRepository;
 import com.hackaton.facepayapi.repositories.UsersRepository;
 import com.hackaton.facepayapi.service.AWSFaceRecognition;
@@ -18,7 +19,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
 @RestController
-@RequestMapping("/test")
+@RequestMapping("")
 public class PaymentController {
     @Autowired
     private PaymentsService paymentsService;
@@ -34,26 +35,25 @@ public class PaymentController {
         try {
             Optional<SessionsEntity> session = sessionsRepository.findFirstBySessionIdAndLoggedOrderByDtLoggedInDesc(Long.valueOf(fooCookie), true);
             if (!session.isPresent()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(404).body("Seller not logged in");
             }
             Optional<UsersEntity> seller = usersRepository.findByUserName(session.get().getUserName());
             if (!seller.isPresent()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(404).body("Seller not logged in");
             }
             Optional<String> faceID = AWSFaceRecognition.validateFace(request.getImageBase64());
             if (!faceID.isPresent()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(404).body("User not found");
             }
 
             Optional<UsersEntity> payer = usersRepository.findByFaceId(faceID.get());
             if (!payer.isPresent()) {
-                return ResponseEntity.notFound().build();
+                return ResponseEntity.status(404).body("User not found");
             }
-
-            // User payer = getPayer(faceID.get());
-            return ResponseEntity.status(CREATED).body(paymentsService.makePayment(seller.get(), payer.get(), request).toString());
+            PaymentResponse resp = paymentsService.makePayment(seller.get(), payer.get(), request);
+            return ResponseEntity.status(CREATED).build();
         } catch (RuntimeException runtimeException) {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(runtimeException.getMessage());
+            return ResponseEntity.status(404).body("Payment unsuccesfull");
         }
     }
 }
