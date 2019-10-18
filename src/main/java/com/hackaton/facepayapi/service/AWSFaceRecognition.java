@@ -66,7 +66,7 @@ public class AWSFaceRecognition {
 
         SearchFacesByImageRequest searchFacesByImageRequest = new SearchFacesByImageRequest()
                 .withImage(image)
-                .withFaceMatchThreshold(70F)
+                .withFaceMatchThreshold(85F)
                 .withMaxFaces(1)
                 .withCollectionId(collectionId);
 
