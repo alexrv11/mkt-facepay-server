@@ -5,7 +5,6 @@ import com.hackaton.facepayapi.models.PaymentResponse;
 import com.hackaton.facepayapi.utils.RestRequestUtils;
 import com.mercadolibre.json.JsonUtils;
 import com.mercadolibre.json.exception.JsonException;
-import com.mercadolibre.restclient.RESTPool;
 import com.mercadolibre.restclient.Response;
 import com.mercadolibre.restclient.RestClient;
 import com.mercadolibre.restclient.exception.RestException;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JsonParseException;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.NoSuchElementException;
 

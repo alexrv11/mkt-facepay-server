@@ -2,6 +2,7 @@ package com.hackaton.facepayapi.services;
 
 import com.hackaton.facepayapi.daos.SessionsEntity;
 import com.hackaton.facepayapi.daos.UsersEntity;
+import com.hackaton.facepayapi.models.login.LoginEntity;
 import com.hackaton.facepayapi.models.login.User;
 import com.hackaton.facepayapi.models.login.response.LoginResponse;
 import com.hackaton.facepayapi.repositories.SessionsRepository;
@@ -22,7 +23,7 @@ public class LoginService {
     @Autowired
     SessionsRepository sessionsRepository;
 
-    public LoginResponse validateUser(User userRequest) {
+    public LoginEntity validateUser(User userRequest) {
 
         String userName = userRequest.getUserName();
         String password = userRequest.getPassword();
@@ -31,9 +32,13 @@ public class LoginService {
 
         return dbUser
                 .map(usersEntity -> {
-                    sessionsRepository.saveAndFlush(new SessionsEntity(userName));
-                    return new LoginResponse(HttpServletResponse.SC_OK, usersEntity.getUserType());
+                    SessionsEntity sesion = new SessionsEntity(userName);
+                    sessionsRepository.saveAndFlush(sesion);
+                    LoginEntity res = new LoginEntity();
+                    res.setSessionId(sesion.getSessionId());
+                    res.setLoginResponse(new LoginResponse(HttpServletResponse.SC_OK, usersEntity.getUserType()));
+                    return res;
                 })
-                .orElseGet(() -> new LoginResponse(HttpServletResponse.SC_UNAUTHORIZED));
+                .orElseGet(() -> new LoginEntity(new LoginResponse(HttpServletResponse.SC_UNAUTHORIZED), 0));
     }
 }
