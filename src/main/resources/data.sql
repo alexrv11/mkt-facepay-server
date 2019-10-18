@@ -17,7 +17,7 @@ INSERT INTO users (id,user_name, password, user_type,user_id) VALUES
 
 INSERT INTO users (id,user_name, password, user_type, access_token, face_id, user_id) VALUES
 (3,'Luca', '123', 'payer', 'APP_USR-6078376556362919-101807-cebfe2dbfa300287e7eae35588ac01fd-480929876',
- '7334b6b5-c799-4776-bb13-fa23d78ab379', 480929876);
+ '44c0a52d-ae8e-45d4-a6e3-3ed4a1f3d42d', 480929876);
 
 
 DROP TABLE IF EXISTS sessions;
