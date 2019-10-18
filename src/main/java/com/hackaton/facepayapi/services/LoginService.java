@@ -36,7 +36,7 @@ public class LoginService {
                     sessionsRepository.saveAndFlush(sesion);
                     LoginEntity res = new LoginEntity();
                     res.setSessionId(sesion.getSessionId());
-                    res.setLoginResponse(new LoginResponse(HttpServletResponse.SC_OK, usersEntity.getUserType()));
+                    res.setLoginResponse(new LoginResponse(HttpServletResponse.SC_OK, usersEntity.getUserType(), userName));
                     return res;
                 })
                 .orElseGet(() -> new LoginEntity(new LoginResponse(HttpServletResponse.SC_UNAUTHORIZED), 0));
