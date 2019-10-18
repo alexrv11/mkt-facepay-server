@@ -39,13 +39,13 @@ public class FaceController {
 
     //Deprecated
     @GetMapping("/facelogin")
-    public ResponseEntity<String> validateLogin(@RequestBody FaceLogin login) {
+    public ResponseEntity<FaceValidationResult> validateLogin(@RequestBody FaceLogin login) {
 
         Optional<String> faceID = AWSFaceRecognition.validateFace(login.getFace());
         if (!faceID.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.accepted().body(faceID.get());
+        return ResponseEntity.accepted().body(new FaceValidationResult(faceID.get()));
 
     }
 
