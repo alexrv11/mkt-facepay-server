@@ -1,5 +1,8 @@
 package com.hackaton.facepayapi.controller;
 
+import com.amazonaws.services.rekognition.model.DeleteFacesRequest;
+import com.amazonaws.services.rekognition.model.DeleteFacesResult;
+import com.amazonaws.services.rekognition.model.ListFacesResult;
 import com.hackaton.facepayapi.models.FaceLogin;
 import com.hackaton.facepayapi.models.FaceValidationResult;
 import com.hackaton.facepayapi.service.AWSFaceRecognition;
@@ -7,12 +10,7 @@ import com.hackaton.facepayapi.services.RegistrationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -46,6 +44,8 @@ public class FaceController {
         return StringUtils.EMPTY;
     }
 
+
+
     @GetMapping("/payer/{faceId}/register")
     public ResponseEntity<String> callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @RequestParam String code) {
         if (code == null)
@@ -57,6 +57,15 @@ public class FaceController {
         }
     }
 
+    @GetMapping("/collection")
+    public ListFacesResult getCollection(){
+        return AWSFaceRecognition.getCollection();
+    }
+
+    @DeleteMapping("/collection")
+    public DeleteFacesResult deleteFaces(@RequestBody String[] faces){
+        return AWSFaceRecognition.delete(faces);
+    }
 
     // Only used to add a new face to the collection
     @PostMapping("/facelogin")

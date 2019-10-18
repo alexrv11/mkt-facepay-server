@@ -21,6 +21,23 @@ public class AWSFaceRecognition {
         rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();
     }
 
+    public ListFacesResult getCollection() {
+        ListFacesRequest listFacesRequest = new ListFacesRequest()
+                .withCollectionId(collectionId);
+        return rekognitionClient.listFaces(listFacesRequest);
+
+
+    }
+
+    public DeleteFacesResult delete(String faces[]) {
+        DeleteFacesRequest deleteFacesRequest = new DeleteFacesRequest()
+                .withCollectionId(collectionId)
+                .withFaceIds(faces);
+
+        return rekognitionClient.deleteFaces(deleteFacesRequest);
+
+    }
+
     public String uploadFace(String imageBase64) throws Exception {
 
 
