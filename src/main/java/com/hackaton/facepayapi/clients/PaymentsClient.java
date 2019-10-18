@@ -50,7 +50,7 @@ public class PaymentsClient {
         Response paymentResponse = postData(headers, paymentRequest);
         if (paymentResponse.getStatus() == HttpStatus.SC_CREATED || paymentResponse.getStatus() == HttpStatus.SC_OK) {
             PaymentResponse resp = JsonUtils.INSTANCE.toObject(paymentResponse.getString(), PaymentResponse.class);
-            if (resp.getStatus() != "approved") {
+            if (!resp.getStatus().equalsIgnoreCase("approved")) {
                 throw new RuntimeException("Payment failed");
             }
             return resp;
