@@ -3,6 +3,7 @@ package com.hackaton.facepayapi.controller;
 import com.hackaton.facepayapi.daos.SessionsEntity;
 import com.hackaton.facepayapi.daos.UsersEntity;
 import com.hackaton.facepayapi.models.PaymentFrontRequest;
+import com.hackaton.facepayapi.models.PaymentFrontResponse;
 import com.hackaton.facepayapi.models.PaymentResponse;
 import com.hackaton.facepayapi.repositories.SessionsRepository;
 import com.hackaton.facepayapi.repositories.UsersRepository;
@@ -31,29 +32,33 @@ public class PaymentController {
     private SessionsRepository sessionsRepository;
 
     @PostMapping(value = "/payments", produces = "application/json")
-    public ResponseEntity<String> processPaymentNotification(@RequestBody PaymentFrontRequest request, @CookieValue("sessionID") String fooCookie) {
+    public ResponseEntity<PaymentFrontResponse> processPaymentNotification(@RequestBody PaymentFrontRequest request, @CookieValue("sessionID") String fooCookie) {
+        PaymentFrontResponse.Builder paymentBuilder = PaymentFrontResponse.Builder.aPaymentFrontResponse();
         try {
+
             Optional<SessionsEntity> session = sessionsRepository.findFirstBySessionIdAndLoggedOrderByDtLoggedInDesc(Long.valueOf(fooCookie), true);
             if (!session.isPresent()) {
-                return ResponseEntity.status(404).body("Seller not logged in");
+
+                return ResponseEntity.status(404).body(paymentBuilder.withStatus("Rejected").withReason("Seller Sesion not found").build());
             }
             Optional<UsersEntity> seller = usersRepository.findByUserName(session.get().getUserName());
             if (!seller.isPresent()) {
-                return ResponseEntity.status(404).body("Seller not logged in");
+                return ResponseEntity.status(404).body(paymentBuilder.withStatus("Rejected").withReason("Seller not logged in").build());
             }
             Optional<String> faceID = AWSFaceRecognition.validateFace(request.getImageBase64());
             if (!faceID.isPresent()) {
-                return ResponseEntity.status(404).body("User not found");
+                return ResponseEntity.status(404).body(paymentBuilder.withStatus("Rejected").withReason("Face not found").build());
             }
 
             Optional<UsersEntity> payer = usersRepository.findByFaceId(faceID.get());
             if (!payer.isPresent()) {
-                return ResponseEntity.status(404).body("User not found");
+                return ResponseEntity.status(404).body(paymentBuilder.withStatus("Rejected").withReason("User not found").build());
             }
+            paymentBuilder.withPayment(new PaymentFrontResponse.Payment(payer.get().getUserName(),request.getAmount(),request.getDescription()));
             PaymentResponse resp = paymentsService.makePayment(seller.get(), payer.get(), request);
-            return ResponseEntity.status(CREATED).build();
+            return ResponseEntity.status(CREATED).body(paymentBuilder.withStatus("Accepted").withReason("Payment succesful").build());
         } catch (RuntimeException runtimeException) {
-            return ResponseEntity.status(404).body("Payment unsuccesfull");
+            return ResponseEntity.status(404).body(paymentBuilder.withStatus("Rejected").withReason("Not enough account money").build());
         }
     }
 }
