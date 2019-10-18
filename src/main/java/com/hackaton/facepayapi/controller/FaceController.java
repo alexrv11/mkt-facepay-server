@@ -5,6 +5,7 @@ import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.CreateCollectionRequest;
 import com.amazonaws.services.rekognition.model.CreateCollectionResult;
 import com.hackaton.facepayapi.models.FaceLogin;
+import com.hackaton.facepayapi.models.FaceValidationResult;
 import com.hackaton.facepayapi.service.AddFacesToCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -43,13 +44,13 @@ public class FaceController {
 
     //Deprecated
     @GetMapping("/facelogin")
-    public ResponseEntity<String> validateLogin(@RequestBody FaceLogin login) {
+    public ResponseEntity<FaceValidationResult> validateLogin(@RequestBody FaceLogin login) {
 
         Optional<String> faceID = addFacesToCollection.validateFace(login.getFace());
         if (!faceID.isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.accepted().body(faceID.get());
+        return ResponseEntity.accepted().body(new FaceValidationResult(faceID.get()));
 
     }
 
