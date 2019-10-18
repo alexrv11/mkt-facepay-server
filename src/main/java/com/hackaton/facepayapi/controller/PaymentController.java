@@ -31,7 +31,7 @@ public class PaymentController {
     @PostMapping(value = "/payments", produces = "application/json")
     public ResponseEntity<String> processPaymentNotification(@RequestBody PaymentFrontRequest request, @CookieValue("sessionID") String fooCookie) {
         try {
-            Optional<SessionsEntity> session = sessionsRepository.findFirstBySessionIdAndLoggedOrderBydtLoggedInDesc(Long.valueOf(fooCookie), true);
+            Optional<SessionsEntity> session = sessionsRepository.findFirstBySessionIdAndLoggedOrderByDtLoggedInDesc(Long.valueOf(fooCookie), true);
             if (!session.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
