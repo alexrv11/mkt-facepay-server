@@ -53,9 +53,9 @@ public class FaceController {
         if (code == null)
             throw new NoSuchElementException("code param is null");
         if (registrationService.userRegistration(faceId, code)) {
-            return new RedirectView("https://murmuring-shore-37556.herokuapp.com/login?status=registered");
+            return new RedirectView("https://ancient-depths-60744.herokuapp.com/login?status=registered");
         } else {
-            return new RedirectView("https://murmuring-shore-37556.herokuapp.com/login?status=error");
+            return new RedirectView("https://ancient-depths-60744.herokuapp.com/login?status=error");
         }
     }
 
