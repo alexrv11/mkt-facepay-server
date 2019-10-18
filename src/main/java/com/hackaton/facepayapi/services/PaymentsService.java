@@ -1,6 +1,7 @@
 package com.hackaton.facepayapi.services;
 
 import com.hackaton.facepayapi.clients.PaymentsClient;
+import com.hackaton.facepayapi.daos.UsersEntity;
 import com.hackaton.facepayapi.models.*;
 import com.mercadolibre.json.exception.JsonException;
 import org.slf4j.Logger;
@@ -18,24 +19,24 @@ public class PaymentsService {
     @Autowired
     private PaymentsClient paymentsClient;
 
-    public PaymentResponse makePayment(PaymentFrontRequest request) {
+    public PaymentResponse makePayment(UsersEntity sellerUser, UsersEntity payerUser,PaymentFrontRequest request) {
 
         Disbursement disbursement = new Disbursement();
-        disbursement.setAmount(new BigDecimal(10L));
         disbursement.setApplicationFee(new BigDecimal(1L));
-        disbursement.setExternalReference("test_sube_pay");
-        disbursement.setCollectorId(480928194);
+        disbursement.setExternalReference(request.getDescription());
+        disbursement.setCollectorId(Integer.valueOf(sellerUser.getUserId()));
         disbursement.setAmount(request.getAmount());
 
         Payer payer = new Payer();
-        payer.setPayerId("480929876");
+        payer.setPayerId(payerUser.getUserId());
 
         Payment payment = new Payment();
         payment.setTransactionAmount(request.getAmount());
 
 
         PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setAccessToken("APP_USR-6078376556362919-101721-6cedd433dc351340ce300ed6fe6879b1-480929876");
+        //"APP_USR-6078376556362919-101721-6cedd433dc351340ce300ed6fe6879b1-480929876"
+        paymentRequest.setAccessToken(payerUser.getAccessToken());
         paymentRequest.setApplicationId("6078376556362919");
         paymentRequest.setDisbursements(Arrays.asList(disbursement));
         paymentRequest.setPayer(payer);

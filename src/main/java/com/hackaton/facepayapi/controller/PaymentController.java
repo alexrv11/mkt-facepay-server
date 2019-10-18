@@ -51,7 +51,7 @@ public class PaymentController {
             }
 
             // User payer = getPayer(faceID.get());
-            return ResponseEntity.status(CREATED).body(paymentsService.makePayment(request).toString());
+            return ResponseEntity.status(CREATED).body(paymentsService.makePayment(seller.get(), payer.get(), request).toString());
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(runtimeException.getMessage());
         }
