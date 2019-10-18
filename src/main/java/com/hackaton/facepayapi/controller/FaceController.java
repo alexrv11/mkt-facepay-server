@@ -69,5 +69,4 @@ public class FaceController {
         return ResponseEntity.accepted().body(res.get());
 
     }
-
 }
