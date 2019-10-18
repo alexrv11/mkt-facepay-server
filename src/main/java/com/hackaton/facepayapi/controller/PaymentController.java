@@ -1,6 +1,8 @@
 package com.hackaton.facepayapi.controller;
 
+import com.hackaton.facepayapi.daos.UsersEntity;
 import com.hackaton.facepayapi.models.PaymentFrontRequest;
+import com.hackaton.facepayapi.repositories.UsersRepository;
 import com.hackaton.facepayapi.service.AWSFaceRecognition;
 import com.hackaton.facepayapi.services.PaymentsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,8 @@ public class PaymentController {
     private PaymentsService paymentsService;
     @Autowired
     private AWSFaceRecognition AWSFaceRecognition;
+    @Autowired
+    private UsersRepository usersRepository;
 
     @PostMapping(value = "/payments", produces = "application/json")
     public ResponseEntity<String> processPaymentNotification(@RequestBody PaymentFrontRequest request) {
@@ -31,7 +35,10 @@ public class PaymentController {
             if (!faceID.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
-           // User payer = getPayer(faceID.get());
+            Optional<UsersEntity> payer = usersRepository.findByFaceId(faceID.get());
+            if (!payer.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.status(OK).body(paymentsService.makePayment(request).toString());
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(runtimeException.getMessage());
