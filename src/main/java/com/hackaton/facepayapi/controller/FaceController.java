@@ -25,10 +25,11 @@ public class FaceController {
     @PostMapping("/payer/face")
     public String registerFace(@RequestBody FaceLogin login) {
         try {
+
             String faceId = AWSFaceRecognition.uploadFace(login.getFace());
-            String applicationId = "2330173696820881";
+            String applicationId = "6078376556362919";
             String redirectUrl = "https%3A%2F%2Fthawing-wildwood-80127.herokuapp.com/payer/" + faceId + "/register";
-            return "https://auth.mercadopago.com.ar/authorization?client_id=" + applicationId + "&response_type=token&platform_id=mp&state=iframe&display=popup&interactive=1&scopes=wallet-payments&redirect_uri=" + redirectUrl;
+            return "https://auth.mercadopago.com.br/authorization?client_id=" + applicationId + "&response_type=token&platform_id=mp&state=iframe&display=popup&interactive=1&scopes=wallet-payments&redirect_uri=" + redirectUrl;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -60,7 +61,6 @@ public class FaceController {
     //Deprecated
     @PostMapping("/facelogin/validate")
     public ResponseEntity<FaceValidationResult> validateLogin(@RequestBody FaceLogin login) {
-
         Optional<String> faceID = AWSFaceRecognition.validateFace(login.getFace());
         if (!faceID.isPresent()) {
             return ResponseEntity.notFound().build();
