@@ -1,6 +1,5 @@
 package com.hackaton.facepayapi.controller;
 
-import com.amazonaws.services.rekognition.model.DeleteFacesRequest;
 import com.amazonaws.services.rekognition.model.DeleteFacesResult;
 import com.amazonaws.services.rekognition.model.ListFacesResult;
 import com.hackaton.facepayapi.models.FaceLogin;
@@ -10,15 +9,19 @@ import com.hackaton.facepayapi.services.RegistrationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestController
 public class FaceController {
@@ -45,25 +48,24 @@ public class FaceController {
     }
 
 
-
     @GetMapping("/payer/{faceId}/register")
-    public ResponseEntity<String> callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @RequestParam String code) {
+    public RedirectView callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @RequestParam String code) {
         if (code == null)
             throw new NoSuchElementException("code param is null");
         if (registrationService.userRegistration(faceId, code)) {
-            return ResponseEntity.status(CREATED).build();
+            return new RedirectView("https://murmuring-shore-37556.herokuapp.com/login?status=registered");
         } else {
-            return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
+            return new RedirectView("https://murmuring-shore-37556.herokuapp.com/login?status=error");
         }
     }
 
     @GetMapping("/collection")
-    public ListFacesResult getCollection(){
+    public ListFacesResult getCollection() {
         return AWSFaceRecognition.getCollection();
     }
 
     @DeleteMapping("/collection")
-    public DeleteFacesResult deleteFaces(@RequestBody String[] faces){
+    public DeleteFacesResult deleteFaces(@RequestBody String[] faces) {
         return AWSFaceRecognition.delete(faces);
     }
 
