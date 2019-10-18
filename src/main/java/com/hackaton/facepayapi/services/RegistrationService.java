@@ -47,7 +47,7 @@ public class RegistrationService {
             usersRepository.save(usersEntity);
             return true;
         } catch (JsonException jsonException) {
-            throw new NoSuchElementException("json format exception in access token response");
+            return false;
         }
     }
 }
