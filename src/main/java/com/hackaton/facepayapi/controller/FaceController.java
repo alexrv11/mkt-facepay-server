@@ -5,6 +5,7 @@ import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.CreateCollectionRequest;
 import com.amazonaws.services.rekognition.model.CreateCollectionResult;
 import com.hackaton.facepayapi.models.FaceLogin;
+import com.hackaton.facepayapi.models.FaceValidationResult;
 import com.hackaton.facepayapi.service.AWSFaceRecognition;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
