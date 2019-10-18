@@ -39,7 +39,7 @@ public class FaceController {
     }
 
     //Deprecated
-    @GetMapping("/facelogin")
+    @PostMapping("/facelogin/validate")
     public ResponseEntity<FaceValidationResult> validateLogin(@RequestBody FaceLogin login) {
 
         Optional<String> faceID = AWSFaceRecognition.validateFace(login.getFace());
