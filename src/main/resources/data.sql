@@ -13,7 +13,7 @@ CREATE TABLE users (
 
 INSERT INTO users (id,user_name, password, user_type,user_id) VALUES
   (1,'payer_test', '123', 'payer',1),
-  (2,'seller_test', '123', 'seller',2);
+  (2,'seller_test', '123', 'seller',480928194);
 
 DROP TABLE IF EXISTS sessions;
 
