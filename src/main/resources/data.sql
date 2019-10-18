@@ -12,8 +12,13 @@ CREATE TABLE users (
 
 
 INSERT INTO users (id,user_name, password, user_type,user_id) VALUES
-  (1,'payer_test', '123', 'payer',1),
-  (2,'seller_test', '123', 'seller',480928194);
+(1,'payer_test', '123', 'payer',1),
+(2,'seller_test', '123', 'seller',480928194);
+
+INSERT INTO users (id,user_name, password, user_type, access_token, face_id, user_id) VALUES
+(3,'Luca', '123', 'payer', 'APP_USR-6078376556362919-101807-cebfe2dbfa300287e7eae35588ac01fd-480929876',
+ '7334b6b5-c799-4776-bb13-fa23d78ab379', 480929876);
+
 
 DROP TABLE IF EXISTS sessions;
 
