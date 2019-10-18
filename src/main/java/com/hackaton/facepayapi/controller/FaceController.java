@@ -37,9 +37,10 @@ public class FaceController {
         return StringUtils.EMPTY;
     }
 
-    @GetMapping("/payer/{faceId}")
-    public void callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @Valid @NotNull @RequestParam String code) {
+    @GetMapping("/payer/{faceId}/register")
+    public String callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @Valid @NotNull @RequestParam String code) {
         registrationService.userRegistration(faceId, code);
+        return "redirected";
     }
 
 
