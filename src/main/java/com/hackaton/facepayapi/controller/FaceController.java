@@ -6,6 +6,7 @@ import com.amazonaws.services.rekognition.model.CreateCollectionRequest;
 import com.amazonaws.services.rekognition.model.CreateCollectionResult;
 import com.hackaton.facepayapi.models.FaceLogin;
 import com.hackaton.facepayapi.service.AddFacesToCollection;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,10 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.util.Base64;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +21,20 @@ public class FaceController {
 
     @Autowired
     private AddFacesToCollection addFacesToCollection;
+
+    @PostMapping("/payer/face")
+    public String registerFace(@RequestBody FaceLogin login) {
+        try {
+            String faceId = addFacesToCollection.uploadFace(login.getFace());
+            String applicationId = "2330173696820881";
+            String redirectUrl = "https%3A%2F%2Fthawing-wildwood-80127.herokuapp.com/payer/" + faceId + "/register";
+            return "https://auth.mercadopago.com.ar/authorization?client_id=" + applicationId + "&response_type=token&platform_id=mp&state=iframe&display=popup&interactive=1&scopes=wallet-payments&redirect_uri=" + redirectUrl;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return StringUtils.EMPTY;
+    }
 
 
     // Only used to add a new face to the collection
