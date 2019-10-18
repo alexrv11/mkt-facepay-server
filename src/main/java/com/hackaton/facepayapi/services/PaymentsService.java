@@ -26,7 +26,6 @@ public class PaymentsService {
         disbursement.setExternalReference(request.getDescription());
         disbursement.setCollectorId(Integer.valueOf(sellerUser.getUserId()));
         disbursement.setAmount(request.getAmount());
-
         Payer payer = new Payer();
         payer.setPayerId(payerUser.getUserId());
 
