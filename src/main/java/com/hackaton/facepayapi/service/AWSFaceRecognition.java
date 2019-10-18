@@ -12,13 +12,18 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AddFacesToCollection {
+public class AWSFaceRecognition {
     // replace bucket, collectionId, and photo with your values.
     public static final String collectionId = "FacePayCollection";
+    private AmazonRekognition rekognitionClient;
+
+    public AWSFaceRecognition() {
+        rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();
+    }
 
     public String uploadFace(String imageBase64) throws Exception {
 
-        AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();
+
 
         Image image = new Image().withBytes(getBytesFromImage(imageBase64));
 
@@ -56,7 +61,6 @@ public class AddFacesToCollection {
 
         Optional<String> res = Optional.empty();
 
-        AmazonRekognition rekognitionClient = AmazonRekognitionClientBuilder.standard().withRegion("us-east-1").build();
 
         Image image = new Image().withBytes(getBytesFromImage(imageBase64));
 
@@ -79,6 +83,23 @@ public class AddFacesToCollection {
             res = Optional.of(faceImageMatches.get(0).getFace().getFaceId());
         }
         return res;
+    }
+
+    public Optional<String> createCollection() {
+
+        System.out.println("Createing collection: " + collectionId);
+        CreateCollectionRequest request = new CreateCollectionRequest()
+                .withCollectionId(collectionId);
+
+        CreateCollectionResult createCollectionResult = rekognitionClient.createCollection(request);
+        System.out.println("CollectionArn : " +
+                createCollectionResult.getCollectionArn());
+        System.out.println("Status code : " +
+                createCollectionResult.getStatusCode().toString());
+        if (createCollectionResult.getStatusCode().intValue() == 200) {
+            return Optional.of(collectionId);
+        }
+        return Optional.empty();
     }
 
     private ByteBuffer getBytesFromImage(String imageBase64){

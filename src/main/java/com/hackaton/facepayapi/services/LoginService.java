@@ -1,26 +1,31 @@
 package com.hackaton.facepayapi.services;
 
-import com.hackaton.facepayapi.db.emulator.DB;
+import com.hackaton.facepayapi.daos.UsersEntity;
 import com.hackaton.facepayapi.models.login.User;
 import com.hackaton.facepayapi.models.login.response.LoginResponse;
+import com.hackaton.facepayapi.repositories.UsersRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
 
-import static com.hackaton.facepayapi.utils.Constants.TYPE_PAYER;
-import static com.hackaton.facepayapi.utils.Constants.TYPE_SELLER;
+import java.util.Optional;
 
 @Service
 public class LoginService {
 
+    @Autowired
+    UsersRepository usersRepository;
 
-    public LoginResponse validateUser(User user) {
-        if ( DB.getInstance().isValidPayer(user.getUserName(), user.getPassword()) )
-            return new LoginResponse(HttpServletResponse.SC_OK, TYPE_PAYER);
+    public LoginResponse validateUser(User userRequest) {
 
-        if ( DB.getInstance().isValidSeller(user.getUserName(), user.getPassword()) )
-            return new LoginResponse(HttpServletResponse.SC_OK, TYPE_SELLER);
+        String userName = userRequest.getUserName();
+        String password = userRequest.getPassword();
 
-        return new LoginResponse(HttpServletResponse.SC_UNAUTHORIZED);
+        Optional<UsersEntity> dbUser = usersRepository.findByUserNameAndPassword(userName, password);
+
+        return dbUser
+                .map(usersEntity -> new LoginResponse(HttpServletResponse.SC_OK, usersEntity.getUserType()))
+                .orElseGet(() -> new LoginResponse(HttpServletResponse.SC_UNAUTHORIZED));
     }
 }
