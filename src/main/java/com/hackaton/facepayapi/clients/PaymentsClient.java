@@ -48,9 +48,13 @@ public class PaymentsClient {
     public PaymentResponse createPayment(PaymentRequest paymentRequest) throws JsonException {
         Headers headers = new Headers();
         Response paymentResponse = postData(headers, paymentRequest);
-        if (paymentResponse.getStatus() == HttpStatus.SC_CREATED || paymentResponse.getStatus() == HttpStatus.SC_OK)
-            return JsonUtils.INSTANCE.toObject(paymentResponse.getString(), PaymentResponse.class);
-        if (paymentResponse.getStatus() == HttpStatus.SC_BAD_REQUEST) {
+        if (paymentResponse.getStatus() == HttpStatus.SC_CREATED || paymentResponse.getStatus() == HttpStatus.SC_OK) {
+            PaymentResponse resp = JsonUtils.INSTANCE.toObject(paymentResponse.getString(), PaymentResponse.class);
+            if (resp.getStatus() != "approved") {
+                throw new RuntimeException("Payment failed");
+            }
+            return resp;
+        }if (paymentResponse.getStatus() == HttpStatus.SC_BAD_REQUEST) {
             throw new NoSuchElementException(String.format("Bad request exception %s", paymentResponse.getString()));
         }
         throw new NoSuchElementException(String.format("status:%d , message %s", paymentResponse.getStatus(), paymentResponse.getString()));
