@@ -1,10 +1,14 @@
 package com.hackaton.facepayapi.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.math.BigDecimal;
 
 public class PaymentFrontRequest {
     private BigDecimal amount;
     private String description;
+    @JsonProperty("image")
     private String imageBase64;
 
     public BigDecimal getAmount() {

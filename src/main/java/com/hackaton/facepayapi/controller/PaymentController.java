@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -35,11 +36,14 @@ public class PaymentController {
             if (!faceID.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
+
             Optional<UsersEntity> payer = usersRepository.findByFaceId(faceID.get());
             if (!payer.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
-            return ResponseEntity.status(OK).body(paymentsService.makePayment(request).toString());
+
+            // User payer = getPayer(faceID.get());
+            return ResponseEntity.status(CREATED).body(paymentsService.makePayment(request).toString());
         } catch (RuntimeException runtimeException) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(runtimeException.getMessage());
         }

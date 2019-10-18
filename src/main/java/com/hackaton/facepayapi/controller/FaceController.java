@@ -3,13 +3,14 @@ package com.hackaton.facepayapi.controller;
 import com.hackaton.facepayapi.models.FaceLogin;
 import com.hackaton.facepayapi.models.FaceValidationResult;
 import com.hackaton.facepayapi.service.AWSFaceRecognition;
+import com.hackaton.facepayapi.services.RegistrationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.Optional;
 
 @RestController
@@ -17,6 +18,9 @@ public class FaceController {
 
     @Autowired
     private AWSFaceRecognition AWSFaceRecognition;
+
+    @Autowired
+    private RegistrationService registrationService;
 
     @PostMapping("/payer/face")
     public String registerFace(@RequestBody FaceLogin login) {
@@ -32,6 +36,11 @@ public class FaceController {
         return StringUtils.EMPTY;
     }
 
+    @GetMapping("/payer/{faceId}")
+    public void callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @Valid @NotNull @RequestParam String code) {
+        registrationService.userRegistration(faceId, code);
+    }
+
 
     // Only used to add a new face to the collection
     @PostMapping("/facelogin")
@@ -39,7 +48,7 @@ public class FaceController {
 
         try {
             return AWSFaceRecognition.uploadFace(login.getFace());
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -61,7 +70,7 @@ public class FaceController {
     }
 
     // Internal method to create a new collection.
-    public ResponseEntity<String> createCollection(){
+    public ResponseEntity<String> createCollection() {
         Optional<String> res = AWSFaceRecognition.createCollection();
         if (!res.isPresent()) {
             return ResponseEntity.notFound().build();
@@ -70,4 +79,11 @@ public class FaceController {
 
     }
 
+    public RegistrationService getRegistrationService() {
+        return registrationService;
+    }
+
+    public void setRegistrationService(RegistrationService registrationService) {
+        this.registrationService = registrationService;
+    }
 }

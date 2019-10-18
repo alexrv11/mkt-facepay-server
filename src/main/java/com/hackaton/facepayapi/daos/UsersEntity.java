@@ -11,6 +11,8 @@ import javax.persistence.*;
 public class UsersEntity {
 
     @Id
+    @Column(name = "id", updatable = false, nullable = false)
+    private Integer id;
     @Column(name = "user_name", updatable = false, nullable = false)
     private String userName;
     @Column(name = "password", nullable = false)
@@ -21,6 +23,9 @@ public class UsersEntity {
     private String accessToken;
     @Column(name = "face_id")
     private String faceId;
+
+    @Column(name = "user_id",nullable = false)
+    private String userId;
 
     public String getUserName() {
         return userName;
@@ -60,5 +65,21 @@ public class UsersEntity {
 
     public void setFaceId(String faceId) {
         this.faceId = faceId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
