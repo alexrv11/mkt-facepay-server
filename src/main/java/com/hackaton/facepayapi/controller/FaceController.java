@@ -7,11 +7,20 @@ import com.hackaton.facepayapi.services.RegistrationService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestController
 public class FaceController {
@@ -37,9 +46,15 @@ public class FaceController {
         return StringUtils.EMPTY;
     }
 
-    @GetMapping("/payer/{faceId}")
-    public void callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @Valid @NotNull @RequestParam String code) {
-        registrationService.userRegistration(faceId, code);
+    @GetMapping("/payer/{faceId}/register")
+    public ResponseEntity<String> callbackRegisterFace(@Valid @NotNull @PathVariable("faceId") String faceId, @RequestParam String code) {
+        if (code == null)
+            throw new NoSuchElementException("code param is null");
+        if (registrationService.userRegistration(faceId, code)) {
+            return ResponseEntity.status(CREATED).build();
+        } else {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).build();
+        }
     }
 
 
